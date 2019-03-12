@@ -19,7 +19,7 @@ namespace BoidsSimulationOnGPU
 
         #region Boids Parameters
         // 最大オブジェクト数
-        [Range(256, 32768)]
+        [Range(256, 32768*2)]
         public int MaxObjectNum = 16384;
 
         // 应用耦合的其它个体的半径
@@ -144,7 +144,8 @@ namespace BoidsSimulationOnGPU
         {
             ComputeShader cs = BoidsCS;
 
-            print("supportsComputeShaders:"+ SystemInfo.supportsComputeShaders);
+            // print("supportsComputeShaders:"+ SystemInfo.supportsComputeShaders);
+            // print(cs.FindKernel("ForceCS"));
 
             int id = -1;
 
@@ -152,7 +153,7 @@ namespace BoidsSimulationOnGPU
             int threadGroupSize = Mathf.CeilToInt(MaxObjectNum / SIMULATION_BLOCK_SIZE);
 
             // 操舵力を計算
-            if(cs.HasKernel("ForceCS")) id = cs.FindKernel("ForceCS"); // 获取内核ID
+            id = cs.FindKernel("ForceCS"); // 获取内核ID
             cs.SetInt("_MaxBoidObjectNum", MaxObjectNum);
             cs.SetFloat("_CohesionNeighborhoodRadius", CohesionNeighborhoodRadius);
             cs.SetFloat("_AlignmentNeighborhoodRadius", AlignmentNeighborhoodRadius);
@@ -170,7 +171,7 @@ namespace BoidsSimulationOnGPU
             cs.Dispatch(id, threadGroupSize, 1, 1); // ComputeShaderを実行
 
             // 从操舵力计算速度和位置
-            if (cs.HasKernel("ForceCS")) id = cs.FindKernel("IntegrateCS"); // 获取内核ID
+            id = cs.FindKernel("IntegrateCS"); // 获取内核ID
             cs.SetFloat("_DeltaTime", Time.deltaTime);
             cs.SetBuffer(id, "_BoidForceBufferRead", _boidForceBuffer);
             cs.SetBuffer(id, "_BoidDataBufferWrite", _boidDataBuffer);
