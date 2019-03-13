@@ -79,7 +79,7 @@ Shader "WaterTian/Spray/Opaque PBR"
             float4 uv = float4(v.texcoord1.xy + _BufferOffset, 0, 0);
 
             float4 p = tex2Dlod(_PositionBuffer, uv);
-            //float4 velocity = tex2Dlod(_VelocityBuffer, uv);
+            //float4 p_velocity = tex2Dlod(_VelocityBuffer, uv);
             //float4 r = tex2Dlod(_RotationBuffer, uv);
 
             float l = p.w + 0.5;
