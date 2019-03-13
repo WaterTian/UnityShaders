@@ -71,22 +71,20 @@
 			float4x4 object2world = (float4x4)0; 
 			// 代入比例值
 			object2world._11_22_33_44 = float4(scl.xyz, 1.0);
-			// 速度からY軸についての回転を算出
-			float rotY = 
-				atan2(boidData.velocity.x, boidData.velocity.z);
-			// 速度からX軸についての回転を算出
-			float rotX = 
-				-asin(boidData.velocity.y / (length(boidData.velocity.xyz) + 1e-8));
-			// オイラー角（ラジアン）から回転行列を求める
+			// 根据速度计算Y轴的旋转
+			float rotY = atan2(boidData.velocity.x, boidData.velocity.z);
+			// 根据速度计算X轴的旋转
+			float rotX = -asin(boidData.velocity.y / (length(boidData.velocity.xyz) + 1e-8));
+			// 从光学角度（弧度）求回转矩阵
 			float4x4 rotMatrix = eulerAnglesToRotationMatrix(float3(rotX, rotY, 0));
-			// 行列に回転を適用
+			// 旋转矩阵
 			object2world = mul(rotMatrix, object2world);
-			// 行列に位置（平行移動）を適用
+			// 对矩阵应用位置(平移)
 			object2world._14_24_34 += pos.xyz;
 
-			// 頂点を座標変換
+			// 頂点座標変換
 			v.vertex = mul(object2world, v.vertex);
-			// 法線を座標変換
+			// 法線座標変換
 			v.normal = normalize(mul(object2world, v.normal));
 			#endif
 		}

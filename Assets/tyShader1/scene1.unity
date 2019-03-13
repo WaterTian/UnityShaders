@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 140178110}
   - component: {fileID: 140178109}
   m_Layer: 0
-  m_Name: spray
+  m_Name: sprit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -137,20 +137,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 140178108}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 051131338091a4b3d861d193e64fb704, type: 3}
+  m_Script: {fileID: 11500000, guid: 80a5f7ea4f10f4c48a9dd9d8d7824311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxParticles: 200000
+  _maxParticles: 10000
   _emitterCenter: {x: 0, y: 0, z: 0}
   _emitterSize: {x: 1, y: 1, z: 1}
   _throttle: 1
-  _life: 5
+  _life: 10
   _lifeRandomness: 0.6
   _initialVelocity: {x: 0, y: 0, z: 4}
-  _directionSpread: 0.1
-  _speedRandomness: 0.3
+  _directionSpread: 0.2
+  _speedRandomness: 0.5
   _acceleration: {x: 0, y: 0, z: 0}
-  _drag: 0.1
+  _drag: 4
   _spin: 20
   _speedToSpin: 60
   _spinRandomness: 0.3
@@ -161,14 +161,14 @@ MonoBehaviour:
   - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   _scale: 0.2
   _scaleRandomness: 0.5
-  _material: {fileID: 2100000, guid: e1aad33bf16194534a7c99e7c01a8249, type: 2}
+  _material: {fileID: 0}
   _castShadows: 1
   _receiveShadows: 1
   _randomSeed: 0
   _debug: 0
-  _defaultMaterial: {fileID: 2100000, guid: e1aad33bf16194534a7c99e7c01a8249, type: 2}
-  _kernelShader: {fileID: 4800000, guid: 5e5e161a3708e40119404232637809fc, type: 3}
-  _debugShader: {fileID: 4800000, guid: ad2397ccf551046ecb4df814f027d430, type: 3}
+  _defaultMaterial: {fileID: 2100000, guid: 239b074980e4548c08d3c5fffe889033, type: 2}
+  _kernelShader: {fileID: 4800000, guid: 22ae52a584b754bcb8f613c7798e20fa, type: 3}
+  _debugShader: {fileID: 4800000, guid: 20497fd1707db47c991ce68638f8f486, type: 3}
 --- !u!4 &140178110
 Transform:
   m_ObjectHideFlags: 0
