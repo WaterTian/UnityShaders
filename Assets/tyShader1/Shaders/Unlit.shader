@@ -14,7 +14,7 @@
 // Rotation buffer format:
 // .xyzw = particle rotation
 //
-Shader "WaterTian/Spray/Transparent Unlit"
+Shader "WaterTian/Spray/Unlit"
 {
     Properties
     {

@@ -140,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80a5f7ea4f10f4c48a9dd9d8d7824311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxParticles: 10000
+  _maxParticles: 60000
   _emitterCenter: {x: 0, y: 0, z: 0}
   _emitterSize: {x: 1, y: 1, z: 1}
   _throttle: 1
@@ -161,11 +161,11 @@ MonoBehaviour:
   - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   _scale: 0.2
   _scaleRandomness: 0.5
-  _material: {fileID: 0}
+  _material: {fileID: 2100000, guid: 239b074980e4548c08d3c5fffe889033, type: 2}
   _castShadows: 1
   _receiveShadows: 1
   _randomSeed: 0
-  _debug: 0
+  _debug: 1
   _defaultMaterial: {fileID: 2100000, guid: 239b074980e4548c08d3c5fffe889033, type: 2}
   _kernelShader: {fileID: 4800000, guid: 22ae52a584b754bcb8f613c7798e20fa, type: 3}
   _debugShader: {fileID: 4800000, guid: 20497fd1707db47c991ce68638f8f486, type: 3}
