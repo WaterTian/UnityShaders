@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 44147708}
   - component: {fileID: 44147707}
   m_Layer: 0
-  m_Name: stream
+  m_Name: fluid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -137,27 +137,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 44147706}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1b3f54b718284a07a756edfd8e4b443, type: 3}
+  m_Script: {fileID: 11500000, guid: bb9d16f2ab70647d2b50724f64ba3bf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxParticles: 32768
-  _emitterPosition: {x: 0, y: 0, z: 20}
-  _emitterSize: {x: 40, y: 40, z: 40}
+  _maxParticles: 30000
+  _emitterPosition: {x: 0, y: 0, z: 0}
+  _emitterSize: {x: 0, y: 50, z: 200}
   _throttle: 1
   _direction: {x: -0, y: -0, z: -1}
   _minSpeed: 5
   _maxSpeed: 10
-  _spread: 0.2
-  _noiseAmplitude: 0.1
+  _life: 10
+  _spread: 0
+  _noiseAmplitude: 7
   _noiseFrequency: 0.2
   _noiseSpeed: 1
-  _color: {r: 0.891079, g: 1.0514731, b: 1.038107, a: 1}
-  _tail: 1
+  _color: {r: 1, g: 1, b: 1, a: 0.7607843}
+  _tail: 2
   _randomSeed: 0
   _debug: 0
-  _kernelShader: {fileID: 4800000, guid: 15fbcf570465e4d47a52953a5777e4ac, type: 3}
-  _lineShader: {fileID: 4800000, guid: 4ce9a096e59784589ab629fb62598c43, type: 3}
-  _debugShader: {fileID: 4800000, guid: b6416db4ecdca416898c8fd2fe89aa2a, type: 3}
+  _kernelShader: {fileID: 4800000, guid: 33d0c2f21b2cf464bb32df171f3c71da, type: 3}
+  _lineShader: {fileID: 4800000, guid: 9601288c046f744e385622bea39e696b, type: 3}
+  _debugShader: {fileID: 4800000, guid: b2d36632f771d45cc993d1d5b4e75abf, type: 3}
 --- !u!4 &44147708
 Transform:
   m_ObjectHideFlags: 0
@@ -165,7 +166,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 44147706}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 50, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -269,8 +270,8 @@ Camera:
   m_GameObject: {fileID: 534669902}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.16037738, g: 0.16037738, b: 0.16037738, a: 0}
   m_projectionMatrixMode: 1
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
@@ -281,7 +282,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.1
   far clip plane: 1000
   field of view: 60
   orthographic: 0
@@ -294,7 +295,7 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 1
+  m_HDR: 0
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
@@ -308,7 +309,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 534669902}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 1, z: -60}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

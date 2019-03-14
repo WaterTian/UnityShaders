@@ -19,6 +19,7 @@ namespace Kvant
         [SerializeField]
         Vector3 _emitterSize = Vector3.one * 40;
 
+        // 节流阀
         [SerializeField, Range(0, 1)]
         float _throttle = 1.0f;
 
@@ -46,6 +47,7 @@ namespace Kvant
         [SerializeField, ColorUsage(true, true, 0, 8, 0.125f, 3)]
         Color _color = Color.white;
 
+        //拖尾
         [SerializeField]
         float _tail = 1.0f;
 
