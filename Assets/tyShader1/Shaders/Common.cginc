@@ -2,14 +2,12 @@
 // Common parts of Spray shaders
 //
 
-sampler2D _PositionBuffer;
-sampler2D _RotationBuffer;
+
+
 
 half _ColorMode;
 half4 _Color;
 half4 _Color2;
-float _ScaleMin;
-float _ScaleMax;
 float _RandomSeed;
 float2 _BufferOffset;
 
@@ -38,14 +36,6 @@ float3 rotate_vector(float3 v, float4 r)
     return qmul(r, qmul(float4(v, 0), r_c)).xyz;
 }
 
-// Scale factor function
-float calc_scale(float2 uv, float time01)
-{
-    float s = lerp(_ScaleMin, _ScaleMax, nrand(uv, 14));
-    // Linear scaling animation with life.
-    // (0, 0) -> (0.1, 1) -> (0.9, 1) -> (1, 0)
-    return s * min(1.0, 5.0 - abs(5.0 - time01 * 10));
-}
 
 // Color function
 float4 calc_color(float2 uv, float time01)

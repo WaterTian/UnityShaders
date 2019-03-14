@@ -8,8 +8,6 @@
 // Velocity buffer format:
 // .xyz = particle velocity
 //
-// Rotation buffer format:
-// .xyzw = particle rotation
 //
 Shader "WaterTian/Spray/Kernel"
 {
@@ -17,7 +15,6 @@ Shader "WaterTian/Spray/Kernel"
     {
         _PositionBuffer ("-", 2D) = ""{}
         _VelocityBuffer ("-", 2D) = ""{}
-        //_RotationBuffer ("-", 2D) = ""{}
     }
 
     CGINCLUDE
@@ -27,7 +24,6 @@ Shader "WaterTian/Spray/Kernel"
 
     sampler2D _PositionBuffer;
     sampler2D _VelocityBuffer;
-    //sampler2D _RotationBuffer;
 
     float3 _EmitterPos;
     float3 _EmitterSize;
@@ -87,30 +83,8 @@ Shader "WaterTian/Spray/Kernel"
 
         return float4(v, 0);
     }
-
-    float4 new_particle_rotation(float2 uv)
-    {
-        // Uniform random unit quaternion
-        // http://www.realtimerendering.com/resources/GraphicsGems/gemsiii/urot.c
-        float r = nrand(uv, 3);
-        float r1 = sqrt(1.0 - r);
-        float r2 = sqrt(r);
-        float t1 = UNITY_PI * 2 * nrand(uv, 4);
-        float t2 = UNITY_PI * 2 * nrand(uv, 5);
-        return float4(sin(t1) * r1, cos(t1) * r1, sin(t2) * r2, cos(t2) * r2);
-    }
-
-    // Deterministic random rotation axis
-    float3 get_rotation_axis(float2 uv)
-    {
-        // Uniformaly distributed points
-        // http://mathworld.wolfram.com/SpherePointPicking.html
-        float u = nrand(uv, 10) * 2 - 1;
-        float theta = nrand(uv, 11) * UNITY_PI * 2;
-        float u2 = sqrt(1 - u * u);
-        return float3(u2 * cos(theta), u2 * sin(theta), u);
-    }
-
+    
+    
     // Pass 0: initial position
     float4 frag_init_position(v2f_img i) : SV_Target
     {
@@ -123,15 +97,8 @@ Shader "WaterTian/Spray/Kernel"
     {
         return new_particle_velocity(i.uv);
     }
-
-    //// Pass 2: initial rotation
-    //float4 frag_init_rotation(v2f_img i) : SV_Target
-    //{
-    //    //return new_particle_rotation(i.uv);
-    //    return float4(1.0,1.0,1.0,1.0);
-    //}
-
-    // Pass 3: position update
+    
+    // Pass 2: position update
     float4 frag_update_position(v2f_img i) : SV_Target
     {
         float4 p = tex2D(_PositionBuffer, i.uv);
@@ -154,7 +121,7 @@ Shader "WaterTian/Spray/Kernel"
         }
     }
 
-    // Pass 4: velocity update
+    // Pass 3: velocity update
     float4 frag_update_velocity(v2f_img i) : SV_Target
     {
         float4 p = tex2D(_PositionBuffer, i.uv);
@@ -174,6 +141,7 @@ Shader "WaterTian/Spray/Kernel"
             float3 n1 = snoise_grad(np);
             float3 n2 = snoise_grad(np + float3(0, 13.28, 0));
             v += cross(n1, n2) * _NoiseParams.y * dt;
+            //v += n2*0.1;
 
             return float4(v, 0);
         }
@@ -183,38 +151,7 @@ Shader "WaterTian/Spray/Kernel"
             return new_particle_velocity(i.uv);
         }
     }
-
-    //// Pass 5: rotation update
-    //float4 frag_update_rotation(v2f_img i) : SV_Target
-    //{
-    //    //float4 r = tex2D(_RotationBuffer, i.uv);
-    //    //float3 v = tex2D(_VelocityBuffer, i.uv).xyz;
-
-    //    ////// Delta angle
-    //    //float dt = _Config.z;
-    //    //float theta = (_SpinParams.x + length(v) * _SpinParams.y) * dt;
-
-    //    //////// Randomness
-    //    //theta *= 1.0 - nrand(i.uv, 13) * _SpinParams.z;
-
-    //    ////// Spin quaternion
-    //    //float4 dq = float4(get_rotation_axis(i.uv) * sin(theta), cos(theta));
-
-    //    ////// Applying the quaternion and normalize the result.
-    //    //return normalize(qmul(dq, r));
-        
-       
-    //    float4 r = tex2D(_RotationBuffer, i.uv);
-    //    float3 v = tex2D(_VelocityBuffer, i.uv).xyz;
-        
-
-    //    //// Spin quaternion
-    //    float4 dq = float4(v*0.014,r.w);
-
-    //    //// Applying the quaternion and normalize the result.
-    //    return normalize(qmul(dq, r));
-        
-    //}
+    
 
     ENDCG
 
@@ -236,14 +173,6 @@ Shader "WaterTian/Spray/Kernel"
             #pragma fragment frag_init_velocity
             ENDCG
         }
-        //Pass
-        //{
-        //    CGPROGRAM
-        //    #pragma target 3.0
-        //    #pragma vertex vert_img
-        //    #pragma fragment frag_init_rotation
-        //    ENDCG
-        //}
         Pass
         {
             CGPROGRAM
@@ -260,13 +189,5 @@ Shader "WaterTian/Spray/Kernel"
             #pragma fragment frag_update_velocity
             ENDCG
         }
-        //Pass
-        //{
-        //    CGPROGRAM
-        //    #pragma target 3.0
-        //    #pragma vertex vert_img
-        //    #pragma fragment frag_update_rotation
-        //    ENDCG
-        //}
     }
 }

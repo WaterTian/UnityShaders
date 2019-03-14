@@ -209,14 +209,15 @@ namespace WaterTian
             set { _scale = value; }
         }
 
-        [SerializeField, Range(0, 1)]
-        float _scaleRandomness = 0.5f;
+        [SerializeField]
+        Vector3 _scaleG = Vector3.one;
 
-        public float scaleRandomness
+        public Vector3 scaleG
         {
-            get { return _scaleRandomness; }
-            set { _scaleRandomness = value; }
+            get { return _scaleG; }
+            set { _scaleG = value; }
         }
+
 
         [SerializeField]
         Material _material;
@@ -285,7 +286,6 @@ namespace WaterTian
 
         #region Built-in Resources
 
-        [SerializeField] Material _defaultMaterial;
         [SerializeField] Shader _kernelShader;
         [SerializeField] Shader _debugShader;
 
@@ -298,8 +298,6 @@ namespace WaterTian
         RenderTexture _positionBuffer2;
         RenderTexture _velocityBuffer1;
         RenderTexture _velocityBuffer2;
-        //RenderTexture _rotationBuffer1;
-        //RenderTexture _rotationBuffer2;
         tyMesh _bulkMesh;
         Material _kernelMaterial;
         Material _debugMaterial;
@@ -398,15 +396,11 @@ namespace WaterTian
             if (_positionBuffer2) DestroyImmediate(_positionBuffer2);
             if (_velocityBuffer1) DestroyImmediate(_velocityBuffer1);
             if (_velocityBuffer2) DestroyImmediate(_velocityBuffer2);
-            //if (_rotationBuffer1) DestroyImmediate(_rotationBuffer1);
-            //if (_rotationBuffer2) DestroyImmediate(_rotationBuffer2);
 
             _positionBuffer1 = CreateBuffer();
             _positionBuffer2 = CreateBuffer();
             _velocityBuffer1 = CreateBuffer();
             _velocityBuffer2 = CreateBuffer();
-            //_rotationBuffer1 = CreateBuffer();
-            //_rotationBuffer2 = CreateBuffer();
 
             if (!_kernelMaterial) _kernelMaterial = CreateMaterial(_kernelShader);
             if (!_debugMaterial) _debugMaterial = CreateMaterial(_debugShader);
@@ -425,7 +419,6 @@ namespace WaterTian
 
             Graphics.Blit(null, _positionBuffer2, _kernelMaterial, 0);
             Graphics.Blit(null, _velocityBuffer2, _kernelMaterial, 1);
-            //Graphics.Blit(null, _rotationBuffer2, _kernelMaterial, 2);
 
             for (var i = 0; i < 8; i++)
             {
@@ -439,27 +432,22 @@ namespace WaterTian
             // Swap the buffers.
             var tempPosition = _positionBuffer1;
             var tempVelocity = _velocityBuffer1;
-            //var tempRotation = _rotationBuffer1;
 
             _positionBuffer1 = _positionBuffer2;
             _velocityBuffer1 = _velocityBuffer2;
-            //_rotationBuffer1 = _rotationBuffer2;
 
             _positionBuffer2 = tempPosition;
             _velocityBuffer2 = tempVelocity;
-            //_rotationBuffer2 = tempRotation;
 
             // Invoke the position update kernel.
             _kernelMaterial.SetTexture("_PositionBuffer", _positionBuffer1);
             _kernelMaterial.SetTexture("_VelocityBuffer", _velocityBuffer1);
-            //_kernelMaterial.SetTexture("_RotationBuffer", _rotationBuffer1);
             Graphics.Blit(null, _positionBuffer2, _kernelMaterial, 2);
 
             // Invoke the velocity and rotation update kernel
             // with the updated position.
             _kernelMaterial.SetTexture("_PositionBuffer", _positionBuffer2);
             Graphics.Blit(null, _velocityBuffer2, _kernelMaterial, 3);
-            //Graphics.Blit(null, _rotationBuffer2, _kernelMaterial, 5);
         }
 
         #endregion
@@ -478,8 +466,6 @@ namespace WaterTian
             if (_positionBuffer2) DestroyImmediate(_positionBuffer2);
             if (_velocityBuffer1) DestroyImmediate(_velocityBuffer1);
             if (_velocityBuffer2) DestroyImmediate(_velocityBuffer2);
-            //if (_rotationBuffer1) DestroyImmediate(_rotationBuffer1);
-            //if (_rotationBuffer2) DestroyImmediate(_rotationBuffer2);
             if (_kernelMaterial) DestroyImmediate(_kernelMaterial);
             if (_debugMaterial) DestroyImmediate(_debugMaterial);
         }
@@ -498,20 +484,20 @@ namespace WaterTian
                 InitializeAndPrewarmBuffers();
             }
 
+
             // Make a material property block for the following drawcalls.
             var props = new MaterialPropertyBlock();
             props.SetTexture("_PositionBuffer", _positionBuffer2);
             props.SetTexture("_VelocityBuffer", _velocityBuffer2);
-            //props.SetTexture("_RotationBuffer", _rotationBuffer2);
-            props.SetFloat("_ScaleMin", _scale * (1 - _scaleRandomness));
-            props.SetFloat("_ScaleMax", _scale);
+            props.SetFloat("_Scale", _scale);
+            props.SetVector("_ScaleG", _scaleG);
             props.SetFloat("_RandomSeed", _randomSeed);
 
             // Temporary variables
             var mesh = _bulkMesh.mesh;
             var position = transform.position;
             var rotation = transform.rotation;
-            var material = _material ? _material : _defaultMaterial;
+            var material = _material;
             var uv = new Vector2(0.5f / _positionBuffer2.width, 0);
 
             // Draw a bulk mesh repeatedly.
