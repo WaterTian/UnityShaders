@@ -210,6 +210,9 @@ Shader "Hidden/Kvant/Spray/Kernel"
 			);
 	}
 
+
+
+
     // Pass 5: rotation update
     float4 frag_update_rotation(v2f_img i) : SV_Target
     {
@@ -229,16 +232,20 @@ Shader "Hidden/Kvant/Spray/Kernel"
 			//float rotX = -asin(v.y / (length(v.xyz) + 1e-8))*3.14 / 180;
 			//float4 dq = eulerToQuaternion(float3(rotX, rotY, 0));
 
-			float3 vFrom = float3(0,0,0);
 
-			float r1 = dot(vFrom,v) + 1;
-			float3 v1 = cross(vFrom, v);
+			float3 vFrom = p.xyz- v * 0.01;
+			float3 vTo = p.xyz;
+
+			float r1 = dot(vFrom, vTo) + 1;
+			float3 v1 = cross(vFrom, vTo);
 			float4 dq = float4(v1, r1);
 
-			// Applying the quaternion and normalize the result.
-			return normalize(qmul(normalize(dq), r));
 
-			//return dq;
+
+			// Applying the quaternion and normalize the result.
+			return normalize(multQuat(dq, r));
+
+			//return normalize(dq);
 		}
 		else
 		{

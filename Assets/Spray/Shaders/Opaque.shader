@@ -79,11 +79,15 @@ Shader "Kvant/Spray/Opaque PBR"
 
             float4 p = tex2Dlod(_PositionBuffer, uv);
             float4 r = tex2Dlod(_RotationBuffer, uv);
+            //float4 r = float4(0, 0, 0, 1);
+
+
+
 
             float l = p.w + 0.5;
             float s = calc_scale(uv, l);
 
-            v.vertex.xyz = rotate_vector(v.vertex.xyz*float3(5,2,1), r) * .1 + p.xyz;
+            v.vertex.xyz = rotate_vector(v.vertex.xyz*float3(1,2,5), r) * .1 + p.xyz;
             v.normal = rotate_vector(v.normal, r);
         #if _NORMALMAP
             v.tangent.xyz = rotate_vector(v.tangent.xyz, r);
