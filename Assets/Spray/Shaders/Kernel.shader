@@ -85,7 +85,8 @@ Shader "Hidden/Kvant/Spray/Kernel"
         v = normalize(v) * _SpeedParams.x;
         v *= 1.0 - nrand(uv, 9) * _SpeedParams.y;
 
-        return float4(v, 0);
+        //return float4(v, 0);
+		return float4(0, 0, 0, 0);
     }
 
     float4 new_particle_rotation(float2 uv)
@@ -97,7 +98,8 @@ Shader "Hidden/Kvant/Spray/Kernel"
         float r2 = sqrt(r);
         float t1 = UNITY_PI * 2 * nrand(uv, 4);
         float t2 = UNITY_PI * 2 * nrand(uv, 5);
-        return float4(sin(t1) * r1, cos(t1) * r1, sin(t2) * r2, cos(t2) * r2);
+        //return float4(sin(t1) * r1, cos(t1) * r1, sin(t2) * r2, cos(t2) * r2);
+        return float4(0,0,0,1);
     }
 
     // Deterministic random rotation axis
@@ -143,7 +145,7 @@ Shader "Hidden/Kvant/Spray/Kernel"
         if (p.w > -0.5)
         {
             // Applying the velocity
-            p.xyz += v * dt;
+            p.xyz += v *0.01;
             return p;
         }
         else
@@ -162,17 +164,17 @@ Shader "Hidden/Kvant/Spray/Kernel"
         if (p.w < 0.5)
         {
             // Drag
-            v *= _Acceleration.w; // dt is pre-applied in script
+            //v *= _Acceleration.w; // dt is pre-applied in script
 
             // Constant acceleration
             float dt = _Config.z;
-            v += _Acceleration.xyz * dt;
+            //v += _Acceleration.xyz * dt;
 
             // Acceleration by turbulent noise
-            float3 np = (p.xyz + _NoiseOffset) * _NoiseParams.x;
+            float3 np = (p.xyz ) * _NoiseParams.x;
             float3 n1 = snoise_grad(np);
             float3 n2 = snoise_grad(np + float3(0, 13.28, 0));
-            v += cross(n1, n2) * _NoiseParams.y * dt;
+            v += cross(n1, n2)  * dt;
 
             return float4(v, 0);
         }
@@ -183,24 +185,66 @@ Shader "Hidden/Kvant/Spray/Kernel"
         }
     }
 
+	float4 eulerToQuaternion(float3 el) {
+		// Assuming the angles are in radians.
+		float c1 = cos(el.x / 2);
+		float s1 = sin(el.x / 2);
+		float c2 = cos(el.y / 2);
+		float s2 = sin(el.y / 2);
+		float c3 = cos(el.z / 2);
+		float s3 = sin(el.z / 2);
+		float c1c2 = c1 * c2;
+		float s1s2 = s1 * s2;
+		float w = c1c2 * c3 - s1s2 * s3;
+		float x = c1c2 * s3 + s1s2 * c3;
+		float y = s1 * c2*c3 + c1 * s2*s3;
+		float z = c1 * s2*c3 - s1 * c2*s3;
+		return float4(x, y, z, w);
+	}
+	float4 multQuat(float4 q1, float4 q2) {
+		return float4(
+			q1.w * q2.x + q1.x * q2.w + q1.z * q2.y - q1.y * q2.z,
+			q1.w * q2.y + q1.y * q2.w + q1.x * q2.z - q1.z * q2.x,
+			q1.w * q2.z + q1.z * q2.w + q1.y * q2.x - q1.x * q2.y,
+			q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z
+			);
+	}
+
     // Pass 5: rotation update
     float4 frag_update_rotation(v2f_img i) : SV_Target
     {
+		float4 p = tex2D(_PositionBuffer, i.uv);
         float4 r = tex2D(_RotationBuffer, i.uv);
         float3 v = tex2D(_VelocityBuffer, i.uv).xyz;
 
-        // Delta angle
-        float dt = _Config.z;
-        float theta = (_SpinParams.x + length(v) * _SpinParams.y) * dt;
 
-        // Randomness
-        theta *= 1.0 - nrand(i.uv, 13) * _SpinParams.z;
 
-        // Spin quaternion
-        float4 dq = float4(get_rotation_axis(i.uv) * sin(theta), cos(theta));
 
-        // Applying the quaternion and normalize the result.
-        return normalize(qmul(dq, r));
+		if (p.w < 0.5)
+		{
+
+			////// 根据速度计算Y轴的旋转
+			//float rotY = atan2(v.x, v.z)*3.14/180;
+			////// 根据速度计算X轴的旋转
+			//float rotX = -asin(v.y / (length(v.xyz) + 1e-8))*3.14 / 180;
+			//float4 dq = eulerToQuaternion(float3(rotX, rotY, 0));
+
+			float3 vFrom = float3(0,0,0);
+
+			float r1 = dot(vFrom,v) + 1;
+			float3 v1 = cross(vFrom, v);
+			float4 dq = float4(v1, r1);
+
+			// Applying the quaternion and normalize the result.
+			return normalize(qmul(normalize(dq), r));
+
+			//return dq;
+		}
+		else
+		{
+			return float4(0, 0, 0, 1);
+		}
+
     }
 
     ENDCG
