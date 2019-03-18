@@ -471,6 +471,8 @@ namespace Kvant
             var props = new MaterialPropertyBlock();
             props.SetTexture("_PositionBuffer", _positionBuffer2);
             props.SetTexture("_RotationBuffer", _rotationBuffer2);
+            props.SetTexture("_VelocityBuffer", _velocityBuffer2);
+
             props.SetFloat("_ScaleMin", _scale * (1 - _scaleRandomness));
             props.SetFloat("_ScaleMax", _scale);
             props.SetFloat("_RandomSeed", _randomSeed);

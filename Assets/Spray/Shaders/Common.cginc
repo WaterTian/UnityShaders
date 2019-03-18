@@ -4,6 +4,7 @@
 
 sampler2D _PositionBuffer;
 sampler2D _RotationBuffer;
+sampler2D _VelocityBuffer;
 
 half _ColorMode;
 half4 _Color;
