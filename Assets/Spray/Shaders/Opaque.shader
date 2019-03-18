@@ -82,8 +82,6 @@ Shader "Kvant/Spray/Opaque PBR"
             float4 p = tex2Dlod(_PositionBuffer, uv);
             float4 pv = tex2Dlod(_VelocityBuffer, uv);
             
-            //float4 r = float4(0, 0, 0, 1);
-            
             float l = p.w + 0.5;
             float s = calc_scale(uv, l);
             float3 scl = float3(1,2,5) * s; 
@@ -111,6 +109,7 @@ Shader "Kvant/Spray/Opaque PBR"
         #if _NORMALMAP
             v.tangent.xyz = normalize(mul(object2world, v.tangent.xyz));
         #endif
+        
             v.color = calc_color(uv, l);
         }
 

@@ -144,11 +144,11 @@ MonoBehaviour:
   _emitterCenter: {x: 0, y: 0, z: 0}
   _emitterSize: {x: 1, y: 1, z: 1}
   _throttle: 1
-  _life: 5
+  _life: 4
   _lifeRandomness: 0.6
   _initialVelocity: {x: 0, y: 0, z: 4}
-  _directionSpread: 0.1
-  _speedRandomness: 0.3
+  _directionSpread: 0.2
+  _speedRandomness: 0.5
   _acceleration: {x: 0, y: 0, z: 0}
   _drag: 0.1
   _spin: 20
@@ -159,11 +159,11 @@ MonoBehaviour:
   _noiseMotion: 1
   _shapes:
   - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  _scale: 0.2
+  _scale: 0.1
   _scaleRandomness: 0.5
   _material: {fileID: 2100000, guid: e1aad33bf16194534a7c99e7c01a8249, type: 2}
-  _castShadows: 1
-  _receiveShadows: 1
+  _castShadows: 0
+  _receiveShadows: 0
   _randomSeed: 0
   _debug: 0
   _defaultMaterial: {fileID: 2100000, guid: e1aad33bf16194534a7c99e7c01a8249, type: 2}

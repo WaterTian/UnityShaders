@@ -35,6 +35,7 @@ Shader "WaterTian/Spray/Opaque PBR"
        
         _Scale ("-", Float) = 1
         _RandomSeed ("-", Float) = 0
+        
     }
     SubShader
     {
@@ -69,6 +70,13 @@ Shader "WaterTian/Spray/Opaque PBR"
         sampler2D _OcclusionMap;
         half _OcclusionStr;
         half3 _Emission;
+        
+        
+
+        half _ColorMode;
+        half4 _Color;
+        half4 _Color2;
+        float2 _BufferOffset;
 
         struct Input
         {
@@ -78,7 +86,6 @@ Shader "WaterTian/Spray/Opaque PBR"
         
        
             
-        
         void vert(inout appdata_full v)
         {
             float4 uv = float4(v.texcoord1.xy + _BufferOffset, 0, 0);
@@ -88,7 +95,7 @@ Shader "WaterTian/Spray/Opaque PBR"
             
             float l = p.w + 0.5;
             float s = _Scale * min(1.0, 5.0 - abs(5.0 - l * 10));
-            float3 scl = _ScaleG * s; 
+            float3 scl = float3(1,2,5) * s; 
         
             // 定义将对象坐标转换为世界坐标的矩阵
             float4x4 object2world = (float4x4)0; 
@@ -100,6 +107,7 @@ Shader "WaterTian/Spray/Opaque PBR"
             float rotX = -asin(pv.y / (length(pv.xyz) + 1e-8));
             // 从光学角度（弧度）求回转矩阵
             float4x4 rotMatrix = eulerAnglesToRotationMatrix(float3(rotX, rotY, 0));
+            
             // 旋转矩阵
             object2world = mul(rotMatrix, object2world);
             // 对矩阵应用位置(平移)
@@ -112,8 +120,10 @@ Shader "WaterTian/Spray/Opaque PBR"
         #if _NORMALMAP
             v.tangent.xyz = normalize(mul(object2world, v.tangent.xyz));
         #endif
-            v.color = calc_color(uv, l);
+        
+            v.color = lerp(_Color, _Color2, (1.0 - l) * _ColorMode);
         }
+        
 
         void surf(Input IN, inout SurfaceOutputStandard o)
         {

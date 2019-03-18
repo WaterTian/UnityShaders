@@ -1,22 +1,4 @@
-//
-// Common parts of Spray shaders
-//
 
-
-
-
-half _ColorMode;
-half4 _Color;
-half4 _Color2;
-float _RandomSeed;
-float2 _BufferOffset;
-
-// PRNG function
-float nrand(float2 uv, float salt)
-{
-    uv += float2(salt, _RandomSeed);
-    return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
-}
 
 // Quaternion multiplication
 // http://mathworld.wolfram.com/Quaternion.html
@@ -46,13 +28,3 @@ float4x4 eulerAnglesToRotationMatrix(float3 angles)
     );
 }
 
-
-// Color function
-float4 calc_color(float2 uv, float time01)
-{
-#if _COLORMODE_RANDOM
-    return lerp(_Color, _Color2, nrand(uv, 15));
-#else
-    return lerp(_Color, _Color2, (1.0 - time01) * _ColorMode);
-#endif
-}

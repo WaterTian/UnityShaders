@@ -38,18 +38,9 @@ namespace WaterTian
             set { _emitterCenter = value; }
         }
 
-        [SerializeField]
-        Vector3 _emitterSize = Vector3.one;
-
-        public Vector3 emitterSize
-        {
-            get { return _emitterSize; }
-            set { _emitterSize = value; }
-        }
-
+        // 流量
         [SerializeField, Range(0, 1)]
         float _throttle = 1.0f;
-
         public float throttle
         {
             get { return _throttle; }
@@ -83,34 +74,18 @@ namespace WaterTian
         #region Velocity Parameters
 
         [SerializeField]
-        Vector3 _initialVelocity = Vector3.forward * 4.0f;
+        Vector3 _startVelocity = Vector3.forward * 4.0f;
 
-        public Vector3 initialVelocity
+        public Vector3 startVelocity
         {
-            get { return _initialVelocity; }
-            set { _initialVelocity = value; }
-        }
-
-        [SerializeField, Range(0, 1)]
-        float _directionSpread = 0.2f;
-
-        public float directionSpread
-        {
-            get { return _directionSpread; }
-            set { _directionSpread = value; }
-        }
-
-        [SerializeField, Range(0, 1)]
-        float _speedRandomness = 0.5f;
-
-        public float speedRandomness
-        {
-            get { return _speedRandomness; }
-            set { _speedRandomness = value; }
+            get { return _startVelocity; }
+            set { _startVelocity = value; }
         }
 
         #endregion
 
+
+        // 加速度
         #region Acceleration Parameters
 
         [SerializeField]
@@ -123,58 +98,19 @@ namespace WaterTian
         }
 
         [SerializeField, Range(0, 10)]
-        float _drag = 0.1f;
+        float _accelerationDrag = 0.1f;
 
-        public float drag
+        public float accelerationDra
         {
-            get { return _drag; }
-            set { _drag = value; }
+            get { return _accelerationDrag; }
+            set { _accelerationDrag = value; }
         }
 
         #endregion
 
-        #region Rotation Parameters
 
-        [SerializeField]
-        float _spin = 20.0f;
-
-        public float spin
-        {
-            get { return _spin; }
-            set { _spin = value; }
-        }
-
-        [SerializeField]
-        float _speedToSpin = 60.0f;
-
-        public float speedToSpin
-        {
-            get { return _speedToSpin; }
-            set { _speedToSpin = value; }
-        }
-
-        [SerializeField, Range(0, 1)]
-        float _spinRandomness = 0.3f;
-
-        public float spinRandomness
-        {
-            get { return _spinRandomness; }
-            set { _spinRandomness = value; }
-        }
-
-        #endregion
-
-        #region Turbulent Noise Parameters
-
-        [SerializeField]
-        float _noiseAmplitude = 1.0f;
-
-        public float noiseAmplitude
-        {
-            get { return _noiseAmplitude; }
-            set { _noiseAmplitude = value; }
-        }
-
+        #region Noise Parameters
+        // 频率
         [SerializeField]
         float _noiseFrequency = 0.2f;
 
@@ -182,6 +118,16 @@ namespace WaterTian
         {
             get { return _noiseFrequency; }
             set { _noiseFrequency = value; }
+        }
+
+        // 振幅
+        [SerializeField]
+        float _noiseAmplitude = 1.0f;
+
+        public float noiseAmplitude
+        {
+            get { return _noiseAmplitude; }
+            set { _noiseAmplitude = value; }
         }
 
         [SerializeField]
@@ -268,21 +214,6 @@ namespace WaterTian
 
         #endregion
 
-        #region Misc Settings
-
-        [SerializeField]
-        int _randomSeed = 0;
-
-        public int randomSeed
-        {
-            get { return _randomSeed; }
-            set { _randomSeed = value; }
-        }
-
-        [SerializeField]
-        bool _debug;
-
-        #endregion
 
         #region Built-in Resources
 
@@ -314,6 +245,17 @@ namespace WaterTian
 
         #endregion
 
+        #region Misc Settings
+
+        [SerializeField]
+        bool _debug;
+
+        #endregion
+
+
+        //// start
+
+
         #region Resource Management
 
         public void NotifyConfigChange()
@@ -344,32 +286,16 @@ namespace WaterTian
             var m = _kernelMaterial;
 
             m.SetVector("_EmitterPos", _emitterCenter);
-            m.SetVector("_EmitterSize", _emitterSize);
 
             var invLifeMax = 1.0f / Mathf.Max(_life, 0.01f);
             var invLifeMin = invLifeMax / Mathf.Max(1 - _lifeRandomness, 0.01f);
             m.SetVector("_LifeParams", new Vector2(invLifeMin, invLifeMax));
+            m.SetVector("_StartVelocity", _startVelocity);
 
-            if (_initialVelocity == Vector3.zero)
-            {
-                m.SetVector("_Direction", new Vector4(0, 0, 1, 0));
-                m.SetVector("_SpeedParams", Vector4.zero);
-            }
-            else
-            {
-                var speed = _initialVelocity.magnitude;
-                var dir = _initialVelocity / speed;
-                m.SetVector("_Direction", new Vector4(dir.x, dir.y, dir.z, _directionSpread));
-                m.SetVector("_SpeedParams", new Vector2(speed, _speedRandomness));
-            }
-
-            var drag = Mathf.Exp(-_drag * deltaTime);
+            var drag = Mathf.Exp(-_accelerationDrag * deltaTime);
             var aparams = new Vector4(_acceleration.x, _acceleration.y, _acceleration.z, drag);
             m.SetVector("_Acceleration", aparams);
 
-            var pi360 = Mathf.PI / 360;
-            var sparams = new Vector3(_spin * pi360, _speedToSpin * pi360, _spinRandomness);
-            m.SetVector("_SpinParams", sparams);
 
             m.SetVector("_NoiseParams", new Vector2(_noiseFrequency, _noiseAmplitude));
 
@@ -382,7 +308,7 @@ namespace WaterTian
 
             m.SetVector("_NoiseOffset", _noiseOffset);
 
-            m.SetVector("_Config", new Vector4(_throttle, _randomSeed, deltaTime, Time.time));
+            m.SetVector("_Config", new Vector4(_throttle, 0, deltaTime, Time.time));
         }
 
         void ResetResources()
@@ -491,7 +417,6 @@ namespace WaterTian
             props.SetTexture("_VelocityBuffer", _velocityBuffer2);
             props.SetFloat("_Scale", _scale);
             props.SetVector("_ScaleG", _scaleG);
-            props.SetFloat("_RandomSeed", _randomSeed);
 
             // Temporary variables
             var mesh = _bulkMesh.mesh;
@@ -535,7 +460,7 @@ namespace WaterTian
         {
             Gizmos.color = Color.yellow;
             Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawWireCube(_emitterCenter, _emitterSize);
+            Gizmos.DrawWireCube(_emitterCenter, Vector3.one);
         }
 
         #endregion
