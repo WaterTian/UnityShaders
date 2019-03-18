@@ -32,29 +32,21 @@ Shader "WaterTian/Spray/Kernel"
 
     float2 _NoiseParams;  // freq, amp  频率 振幅 
     float3 _NoiseOffset;
-    float4 _Config;       // throttle, randomSeed, dT, time
+    float2 _Config;       // throttle, dT
 
     // PRNG function
     float nrand(float2 uv, float salt)
     {
-        uv += float2(salt, _Config.y);
+        //float randomSeed = 0;
+        uv += float2(salt, 0);
         return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
     }
-
-    // Quaternion multiplication
-    // http://mathworld.wolfram.com/Quaternion.html
-    float4 qmul(float4 q1, float4 q2)
-    {
-        return float4(
-            q2.xyz * q1.w + q1.xyz * q2.w + cross(q1.xyz, q2.xyz),
-            q1.w * q2.w - dot(q1.xyz, q2.xyz)
-        );
-    }
+    
 
     // Particle generator functions
     float4 new_particle_position(float2 uv)
     {
-        float t = _Config.w;
+        float t = _Config.y;
 
         // Random position
         float3 p = float3(nrand(uv, t), nrand(uv, t + 1), nrand(uv, t + 2));
@@ -74,7 +66,7 @@ Shader "WaterTian/Spray/Kernel"
         
         v = lerp(_StartVelocity, v, 0.4);
 
-        return float4(v, 0);
+        return float4(_StartVelocity, 0);
         //return float4(0, 0, 0, 0);
     }
     
@@ -99,7 +91,7 @@ Shader "WaterTian/Spray/Kernel"
         float3 v = tex2D(_VelocityBuffer, i.uv).xyz;
 
         // Decaying
-        float dt = _Config.z;
+        float dt = _Config.y;
         p.w -= lerp(_LifeParams.x, _LifeParams.y, nrand(i.uv, 12)) * dt;
 
         if (p.w > -0.5)
@@ -123,7 +115,7 @@ Shader "WaterTian/Spray/Kernel"
 
         if (p.w < 0.5)
         {
-            float dt = _Config.z;
+            float dt = _Config.y;
             
             // 加速度
             v *= _Acceleration.w; // dt is pre-applied in script

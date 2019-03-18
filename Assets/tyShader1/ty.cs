@@ -308,7 +308,7 @@ namespace WaterTian
 
             m.SetVector("_NoiseOffset", _noiseOffset);
 
-            m.SetVector("_Config", new Vector4(_throttle, 0, deltaTime, Time.time));
+            m.SetVector("_Config", new Vector2(_throttle,deltaTime));
         }
 
         void ResetResources()
