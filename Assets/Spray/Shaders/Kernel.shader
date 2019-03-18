@@ -17,7 +17,6 @@ Shader "Hidden/Kvant/Spray/Kernel"
     {
         _PositionBuffer ("-", 2D) = ""{}
         _VelocityBuffer ("-", 2D) = ""{}
-        _RotationBuffer ("-", 2D) = ""{}
     }
 
     CGINCLUDE
@@ -46,16 +45,7 @@ Shader "Hidden/Kvant/Spray/Kernel"
         uv += float2(salt, _Config.y);
         return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
     }
-
-    // Quaternion multiplication
-    // http://mathworld.wolfram.com/Quaternion.html
-    float4 qmul(float4 q1, float4 q2)
-    {
-        return float4(
-            q2.xyz * q1.w + q1.xyz * q2.w + cross(q1.xyz, q2.xyz),
-            q1.w * q2.w - dot(q1.xyz, q2.xyz)
-        );
-    }
+    
 
     // Particle generator functions
     float4 new_particle_position(float2 uv)
@@ -88,30 +78,8 @@ Shader "Hidden/Kvant/Spray/Kernel"
         //return float4(v, 0);
 		return float4(0, 0, 0, 0);
     }
-
-    float4 new_particle_rotation(float2 uv)
-    {
-        // Uniform random unit quaternion
-        // http://www.realtimerendering.com/resources/GraphicsGems/gemsiii/urot.c
-        float r = nrand(uv, 3);
-        float r1 = sqrt(1.0 - r);
-        float r2 = sqrt(r);
-        float t1 = UNITY_PI * 2 * nrand(uv, 4);
-        float t2 = UNITY_PI * 2 * nrand(uv, 5);
-        //return float4(sin(t1) * r1, cos(t1) * r1, sin(t2) * r2, cos(t2) * r2);
-        return float4(0,0,0,1);
-    }
-
-    // Deterministic random rotation axis
-    float3 get_rotation_axis(float2 uv)
-    {
-        // Uniformaly distributed points
-        // http://mathworld.wolfram.com/SpherePointPicking.html
-        float u = nrand(uv, 10) * 2 - 1;
-        float theta = nrand(uv, 11) * UNITY_PI * 2;
-        float u2 = sqrt(1 - u * u);
-        return float3(u2 * cos(theta), u2 * sin(theta), u);
-    }
+    
+    
 
     // Pass 0: initial position
     float4 frag_init_position(v2f_img i) : SV_Target
@@ -125,14 +93,8 @@ Shader "Hidden/Kvant/Spray/Kernel"
     {
         return new_particle_velocity(i.uv);
     }
-
-    // Pass 2: initial rotation
-    float4 frag_init_rotation(v2f_img i) : SV_Target
-    {
-        return new_particle_rotation(i.uv);
-    }
-
-    // Pass 3: position update
+    
+    // Pass 2: position update
     float4 frag_update_position(v2f_img i) : SV_Target
     {
         float4 p = tex2D(_PositionBuffer, i.uv);
@@ -155,7 +117,7 @@ Shader "Hidden/Kvant/Spray/Kernel"
         }
     }
 
-    // Pass 4: velocity update
+    // Pass 3: velocity update
     float4 frag_update_velocity(v2f_img i) : SV_Target
     {
         float4 p = tex2D(_PositionBuffer, i.uv);
@@ -164,11 +126,11 @@ Shader "Hidden/Kvant/Spray/Kernel"
         if (p.w < 0.5)
         {
             // Drag
-            //v *= _Acceleration.w; // dt is pre-applied in script
+            v *= _Acceleration.w; // dt is pre-applied in script
 
             // Constant acceleration
             float dt = _Config.z;
-            //v += _Acceleration.xyz * dt;
+            v += _Acceleration.xyz * dt;
 
             // Acceleration by turbulent noise
             float3 np = (p.xyz ) * _NoiseParams.x;
@@ -183,76 +145,10 @@ Shader "Hidden/Kvant/Spray/Kernel"
             // Respawn
             return new_particle_velocity(i.uv);
         }
-    }
-
-	float4 eulerToQuaternion(float3 el) {
-		// Assuming the angles are in radians.
-		float c1 = cos(el.x / 2);
-		float s1 = sin(el.x / 2);
-		float c2 = cos(el.y / 2);
-		float s2 = sin(el.y / 2);
-		float c3 = cos(el.z / 2);
-		float s3 = sin(el.z / 2);
-		float c1c2 = c1 * c2;
-		float s1s2 = s1 * s2;
-		float w = c1c2 * c3 - s1s2 * s3;
-		float x = c1c2 * s3 + s1s2 * c3;
-		float y = s1 * c2*c3 + c1 * s2*s3;
-		float z = c1 * s2*c3 - s1 * c2*s3;
-		return float4(x, y, z, w);
-	}
-	float4 multQuat(float4 q1, float4 q2) {
-		return float4(
-			q1.w * q2.x + q1.x * q2.w + q1.z * q2.y - q1.y * q2.z,
-			q1.w * q2.y + q1.y * q2.w + q1.x * q2.z - q1.z * q2.x,
-			q1.w * q2.z + q1.z * q2.w + q1.y * q2.x - q1.x * q2.y,
-			q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z
-			);
-	}
+    }   
 
 
-
-
-    // Pass 5: rotation update
-    float4 frag_update_rotation(v2f_img i) : SV_Target
-    {
-		float4 p = tex2D(_PositionBuffer, i.uv);
-        float4 r = tex2D(_RotationBuffer, i.uv);
-        float3 v = tex2D(_VelocityBuffer, i.uv).xyz;
-
-
-
-
-		if (p.w < 0.5)
-		{
-
-			////// 根据速度计算Y轴的旋转
-			//float rotY = atan2(v.x, v.z)*3.14/180;
-			////// 根据速度计算X轴的旋转
-			//float rotX = -asin(v.y / (length(v.xyz) + 1e-8))*3.14 / 180;
-			//float4 dq = eulerToQuaternion(float3(rotX, rotY, 0));
-
-
-			float3 vFrom = p.xyz- v * 0.01;
-			float3 vTo = p.xyz;
-
-			float r1 = dot(vFrom, vTo) + 1;
-			float3 v1 = cross(vFrom, vTo);
-			float4 dq = float4(v1, r1);
-
-
-
-			// Applying the quaternion and normalize the result.
-			return normalize(multQuat(dq, r));
-
-			//return normalize(dq);
-		}
-		else
-		{
-			return float4(0, 0, 0, 1);
-		}
-
-    }
+   
 
     ENDCG
 
@@ -279,14 +175,6 @@ Shader "Hidden/Kvant/Spray/Kernel"
             CGPROGRAM
             #pragma target 3.0
             #pragma vertex vert_img
-            #pragma fragment frag_init_rotation
-            ENDCG
-        }
-        Pass
-        {
-            CGPROGRAM
-            #pragma target 3.0
-            #pragma vertex vert_img
             #pragma fragment frag_update_position
             ENDCG
         }
@@ -296,14 +184,6 @@ Shader "Hidden/Kvant/Spray/Kernel"
             #pragma target 3.0
             #pragma vertex vert_img
             #pragma fragment frag_update_velocity
-            ENDCG
-        }
-        Pass
-        {
-            CGPROGRAM
-            #pragma target 3.0
-            #pragma vertex vert_img
-            #pragma fragment frag_update_rotation
             ENDCG
         }
     }

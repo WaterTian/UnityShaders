@@ -18,7 +18,6 @@ Shader "Kvant/Spray/Opaque PBR"
     Properties
     {
         _PositionBuffer ("-", 2D) = "black"{}
-        _RotationBuffer ("-", 2D) = "red"{}
         _VelocityBuffer ("-", 2D) = "red"{}
 
         [KeywordEnum(Single, Animate, Random)]
@@ -74,21 +73,6 @@ Shader "Kvant/Spray/Opaque PBR"
             half4 color : COLOR;
         };
         
-        // 将光学角度(弧度)转换为旋转矩阵
-        float4x4 eulerAnglesToRotationMatrix(float3 angles)
-        {
-            float ch = cos(angles.y); float sh = sin(angles.y); // heading
-            float ca = cos(angles.z); float sa = sin(angles.z); // attitude
-            float cb = cos(angles.x); float sb = sin(angles.x); // bank
-
-            // Ry-Rx-Rz (Yaw Pitch Roll)
-            return float4x4(
-                ch * ca + sh * sb * sa, -ch * sa + sh * sb * ca, sh * cb, 0,
-                cb * sa, cb * ca, -sb, 0,
-                -sh * ca + ch * sb * sa, sh * sa + ch * sb * ca, ch * cb, 0,
-                0, 0, 0, 1
-            );
-        }
         
 
         void vert(inout appdata_full v)
@@ -96,22 +80,13 @@ Shader "Kvant/Spray/Opaque PBR"
             float4 uv = float4(v.texcoord1.xy + _BufferOffset, 0, 0);
 
             float4 p = tex2Dlod(_PositionBuffer, uv);
-            float4 r = tex2Dlod(_RotationBuffer, uv);
             float4 pv = tex2Dlod(_VelocityBuffer, uv);
             
             //float4 r = float4(0, 0, 0, 1);
             
             float l = p.w + 0.5;
             float s = calc_scale(uv, l);
-
-            //v.vertex.xyz = rotate_vector(v.vertex.xyz*float3(1,2,5), r) * .1 + p.xyz;
-            //v.normal = rotate_vector(v.normal, r);
-            
-        //#if _NORMALMAP
-        //    v.tangent.xyz = rotate_vector(v.tangent.xyz, r);
-        //#endif
-        
-            float3 scl = float3(1,2,5)*0.1; 
+            float3 scl = float3(1,2,5) * s; 
         
             // 定义将对象坐标转换为世界坐标的矩阵
             float4x4 object2world = (float4x4)0; 
@@ -124,12 +99,10 @@ Shader "Kvant/Spray/Opaque PBR"
             // 从光学角度（弧度）求回转矩阵
             float4x4 rotMatrix = eulerAnglesToRotationMatrix(float3(rotX, rotY, 0));
             
-            
             // 旋转矩阵
             object2world = mul(rotMatrix, object2world);
             // 对矩阵应用位置(平移)
             object2world._14_24_34 += p.xyz;
-
             // 頂点座標変換
             v.vertex = mul(object2world, v.vertex);
             // 法線座標変換

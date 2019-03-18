@@ -81,7 +81,8 @@ Shader "WaterTian/Spray/Kernel"
         v = normalize(v) * _SpeedParams.x;
         v *= 1.0 - nrand(uv, 9) * _SpeedParams.y;
 
-        return float4(v, 0);
+        //return float4(v, 0);
+        return float4(0, 0, 0, 0);
     }
     
     
