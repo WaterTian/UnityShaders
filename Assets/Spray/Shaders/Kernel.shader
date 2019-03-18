@@ -75,8 +75,8 @@ Shader "Hidden/Kvant/Spray/Kernel"
         v = normalize(v) * _SpeedParams.x;
         v *= 1.0 - nrand(uv, 9) * _SpeedParams.y;
 
-        //return float4(v, 0);
-		return float4(0, 0, 0, 0);
+        return float4(v, 0);
+		//return float4(0, 0, 0, 0);
     }
     
     
@@ -133,10 +133,10 @@ Shader "Hidden/Kvant/Spray/Kernel"
             v += _Acceleration.xyz * dt;
 
             // Acceleration by turbulent noise
-            float3 np = (p.xyz ) * _NoiseParams.x;
+            float3 np = (p.xyz + _NoiseOffset) * _NoiseParams.x;
             float3 n1 = snoise_grad(np);
             float3 n2 = snoise_grad(np + float3(0, 13.28, 0));
-            v += cross(n1, n2)  * dt;
+            v += cross(n1, n2) * _NoiseParams.y * dt;
 
             return float4(v, 0);
         }
