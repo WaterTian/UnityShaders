@@ -15,7 +15,7 @@ Shader "Hidden/WaterTian/Fluid/Kernel"
         _Direction   ("-", Vector) = (0, 0, -1, 0.2)
         _SpeedParams ("-", Vector) = (5, 10, 0, 0)
         _NoiseParams ("-", Vector) = (0.2, 0.1, 1)  // (frequency, amplitude, animation)
-        _Config      ("-", Vector) = (1, 2, 0, 0)   // (throttle, life, random seed, dT)
+        _Config      ("-", Vector) = (1, 2, 0 ,0)   // (throttle, life, dT ,t)
     }
 
     CGINCLUDE
@@ -34,17 +34,20 @@ Shader "Hidden/WaterTian/Fluid/Kernel"
     float4 _NoiseParams;
     float4 _Config;
 
-    // PRNG function.
+    // PRNG function
     float nrand(float2 uv, float salt)
     {
-        uv += float2(salt, _Config.z);
+        //float randomSeed = 0;
+        uv += float2(salt, 0);
         return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
     }
+    
 
     // Get a new particle.
     float4 new_particle(float2 uv)
     {
-        float t = _Time.x;
+        //float t = _Time.x;
+        float t = _Config.w;
 
         // Random position.
         float3 p = float3(nrand(uv, t + 1), nrand(uv, t + 2), nrand(uv, t + 3));
@@ -58,7 +61,10 @@ Shader "Hidden/WaterTian/Fluid/Kernel"
 
         return float4(p, l) + offs;
     }
-
+    
+   
+    
+    
     // Position dependant velocity field.
     float3 get_velocity(float3 p, float2 uv)
     {
@@ -72,16 +78,33 @@ Shader "Hidden/WaterTian/Fluid/Kernel"
         // Apply the speed parameter.
         v = normalize(v) * lerp(_SpeedParams.x, _SpeedParams.y, nrand(uv, 7));
 
+
+
+        // 碰撞
+        
+        
+        if (p.z<0 && p.z>-5) {
+            if (p.y> -5 && p.y< 5) {
+              
+              float _r = p.y/10 * UNITY_PI;
+              float3 normal = float3(0,sin(_r),1);
+
+              v = reflect(v, normal) * 1.2;
+            }
+        };
+        
+        
 #ifdef NOISE_ON
         // Add noise vector.
-        p = (p + _Time.y * _NoiseParams.z) * _NoiseParams.x;
+        float dt = _Config.z;
+        p = (p + dt * _NoiseParams.z) * _NoiseParams.x;
         float nx = cnoise(p + float3(138.2, 0, 0));
         float ny = cnoise(p + float3(0, 138.2, 0));
         float nz = cnoise(p + float3(0, 0, 138.2));
         v += float3(nx, ny, nz) * _NoiseParams.y;
 #endif
-
-        //if (p.z<0 && p.z>-10)  v += float3(0,5, 0);
+        
+        
 
         return v;
     }
@@ -98,7 +121,7 @@ Shader "Hidden/WaterTian/Fluid/Kernel"
         float4 p = tex2D(_MainTex, i.uv);
         if (p.w > 0)
         {
-            float dt = _Config.w;
+            float dt = _Config.z;
             p.xyz += get_velocity(p.xyz, i.uv) * dt; // position
             p.w -= dt;                               // life
             

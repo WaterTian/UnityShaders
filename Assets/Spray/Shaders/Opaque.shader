@@ -18,7 +18,7 @@ Shader "Kvant/Spray/Opaque PBR"
     Properties
     {
         _PositionBuffer ("-", 2D) = "black"{}
-        _RotationBuffer ("-", 2D) = "red"{}
+        _VelocityBuffer ("-", 2D) = "red"{}
 
         [KeywordEnum(Single, Animate, Random)]
         _ColorMode ("-", Float) = 0
@@ -72,22 +72,44 @@ Shader "Kvant/Spray/Opaque PBR"
             float2 uv_MainTex;
             half4 color : COLOR;
         };
+        
+        
 
         void vert(inout appdata_full v)
         {
             float4 uv = float4(v.texcoord1.xy + _BufferOffset, 0, 0);
 
             float4 p = tex2Dlod(_PositionBuffer, uv);
-            float4 r = tex2Dlod(_RotationBuffer, uv);
-
+            float4 pv = tex2Dlod(_VelocityBuffer, uv);
+            
             float l = p.w + 0.5;
             float s = calc_scale(uv, l);
-
-            v.vertex.xyz = rotate_vector(v.vertex.xyz, r) * s + p.xyz;
-            v.normal = rotate_vector(v.normal, r);
+            float3 scl = float3(1,2,5) * s; 
+        
+            // 定义将对象坐标转换为世界坐标的矩阵
+            float4x4 object2world = (float4x4)0; 
+            // 代入比例值
+            object2world._11_22_33_44 = float4(scl.xyz, 1.0);
+            // 根据速度计算Y轴的旋转
+            float rotY = atan2(pv.x, pv.z);
+            // 根据速度计算X轴的旋转
+            float rotX = -asin(pv.y / (length(pv.xyz) + 1e-8));
+            // 从光学角度（弧度）求回转矩阵
+            float4x4 rotMatrix = eulerAnglesToRotationMatrix(float3(rotX, rotY, 0));
+            
+            // 旋转矩阵
+            object2world = mul(rotMatrix, object2world);
+            // 对矩阵应用位置(平移)
+            object2world._14_24_34 += p.xyz;
+            // 頂点座標変換
+            v.vertex = mul(object2world, v.vertex);
+            // 法線座標変換
+            v.normal = normalize(mul(object2world, v.normal));
+        
         #if _NORMALMAP
-            v.tangent.xyz = rotate_vector(v.tangent.xyz, r);
+            v.tangent.xyz = normalize(mul(object2world, v.tangent.xyz));
         #endif
+        
             v.color = calc_color(uv, l);
         }
 

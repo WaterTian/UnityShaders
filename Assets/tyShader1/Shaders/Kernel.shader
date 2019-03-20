@@ -26,41 +26,31 @@ Shader "WaterTian/Spray/Kernel"
     sampler2D _VelocityBuffer;
 
     float3 _EmitterPos;
-    float3 _EmitterSize;
     float2 _LifeParams;   // 1/min, 1/max
-    float4 _Direction;    // x, y, z, spread
-    float2 _SpeedParams;  // speed, randomness
-    float4 _Acceleration; // x, y, z, drag
-    float3 _SpinParams;   // spin*2, speed-to-spin*2, randomness
-    float2 _NoiseParams;  // freq, amp
+    float3 _StartVelocity;    // x, y, z   初始速度
+    float4 _Acceleration; // x, y, z, drag  加速度
+
+    float2 _NoiseParams;  // freq, amp  频率 振幅 
     float3 _NoiseOffset;
-    float4 _Config;       // throttle, randomSeed, dT, time
+    float2 _Config;       // throttle, dT
 
     // PRNG function
     float nrand(float2 uv, float salt)
     {
-        uv += float2(salt, _Config.y);
+        //float randomSeed = 0;
+        uv += float2(salt, 0);
         return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
     }
-
-    // Quaternion multiplication
-    // http://mathworld.wolfram.com/Quaternion.html
-    float4 qmul(float4 q1, float4 q2)
-    {
-        return float4(
-            q2.xyz * q1.w + q1.xyz * q2.w + cross(q1.xyz, q2.xyz),
-            q1.w * q2.w - dot(q1.xyz, q2.xyz)
-        );
-    }
+    
 
     // Particle generator functions
     float4 new_particle_position(float2 uv)
     {
-        float t = _Config.w;
+        float t = _Config.y;
 
         // Random position
         float3 p = float3(nrand(uv, t), nrand(uv, t + 1), nrand(uv, t + 2));
-        p = (p - (float3)0.5) * _EmitterSize + _EmitterPos;
+        p = (p - (float3)0.5) + _EmitterPos;
 
         // Throttling: discards particle emission by adding offset.
         float4 offs = float4(1e8, 1e8, 1e8, -1) * (uv.x > _Config.x);
@@ -73,15 +63,11 @@ Shader "WaterTian/Spray/Kernel"
         // Random vector
         float3 v = float3(nrand(uv, 6), nrand(uv, 7), nrand(uv, 8));
         v = (v - (float3)0.5) * 2;
+        
+        v = lerp(_StartVelocity, v, 0.4);
 
-        // Spreading
-        v = lerp(_Direction.xyz, v, _Direction.w);
-
-        // Speed
-        v = normalize(v) * _SpeedParams.x;
-        v *= 1.0 - nrand(uv, 9) * _SpeedParams.y;
-
-        return float4(v, 0);
+        return float4(_StartVelocity, 0);
+        //return float4(0, 0, 0, 0);
     }
     
     
@@ -105,7 +91,7 @@ Shader "WaterTian/Spray/Kernel"
         float3 v = tex2D(_VelocityBuffer, i.uv).xyz;
 
         // Decaying
-        float dt = _Config.z;
+        float dt = _Config.y;
         p.w -= lerp(_LifeParams.x, _LifeParams.y, nrand(i.uv, 12)) * dt;
 
         if (p.w > -0.5)
@@ -129,11 +115,10 @@ Shader "WaterTian/Spray/Kernel"
 
         if (p.w < 0.5)
         {
-            // Drag
+            float dt = _Config.y;
+            
+            // 加速度
             v *= _Acceleration.w; // dt is pre-applied in script
-
-            // Constant acceleration
-            float dt = _Config.z;
             v += _Acceleration.xyz * dt;
 
             // Acceleration by turbulent noise

@@ -35,6 +35,7 @@ Shader "WaterTian/Spray/Opaque PBR"
        
         _Scale ("-", Float) = 1
         _RandomSeed ("-", Float) = 0
+        
     }
     SubShader
     {
@@ -69,6 +70,13 @@ Shader "WaterTian/Spray/Opaque PBR"
         sampler2D _OcclusionMap;
         half _OcclusionStr;
         half3 _Emission;
+        
+        
+
+        half _ColorMode;
+        half4 _Color;
+        half4 _Color2;
+        float2 _BufferOffset;
 
         struct Input
         {
@@ -76,47 +84,46 @@ Shader "WaterTian/Spray/Opaque PBR"
             half4 color : COLOR;
         };
         
-
-    
-        float4 eulerToQuaternion(float3 el) {
-            // Assuming the angles are in radians.
-            float c1 = cos(el.x/2);
-            float s1 = sin(el.x/2);
-            float c2 = cos(el.y/2);
-            float s2 = sin(el.y/2);
-            float c3 = cos(el.z/2);
-            float s3 = sin(el.z/2);
-            float c1c2 = c1*c2;
-            float s1s2 = s1*s2;
-            float w =c1c2*c3 - s1s2*s3;
-            float x =c1c2*s3 + s1s2*c3;
-            float y =s1*c2*c3 + c1*s2*s3;
-            float z =c1*s2*c3 - s1*c2*s3;
-            return float4(x,y,z,w);
-        }
+       
             
-        
         void vert(inout appdata_full v)
         {
             float4 uv = float4(v.texcoord1.xy + _BufferOffset, 0, 0);
 
             float4 p = tex2Dlod(_PositionBuffer, uv);
-            float3 p_velocity = tex2Dlod(_VelocityBuffer, uv).xyz;
+            float4 pv = tex2Dlod(_VelocityBuffer, uv);
             
-            float4 r = eulerToQuaternion(p_velocity);
             float l = p.w + 0.5;
             float s = _Scale * min(1.0, 5.0 - abs(5.0 - l * 10));
+            float3 scl = float3(1,2,5) * s; 
+        
+            // 定义将对象坐标转换为世界坐标的矩阵
+            float4x4 object2world = (float4x4)0; 
+            // 代入比例值
+            object2world._11_22_33_44 = float4(scl.xyz, 1.0);
+            // 根据速度计算Y轴的旋转
+            float rotY = atan2(pv.x, pv.z);
+            // 根据速度计算X轴的旋转
+            float rotX = -asin(pv.y / (length(pv.xyz) + 1e-8));
+            // 从光学角度（弧度）求回转矩阵
+            float4x4 rotMatrix = eulerAnglesToRotationMatrix(float3(rotX, rotY, 0));
             
-            v.vertex.xyz = rotate_vector(v.vertex.xyz * _ScaleG, r) * s + p.xyz;
-            v.normal = rotate_vector(v.normal, r);
-            
-            
-            #if _NORMALMAP
-                v.tangent.xyz = rotate_vector(v.tangent.xyz, r);
-            #endif
-            
-            v.color = calc_color(uv, l);
+            // 旋转矩阵
+            object2world = mul(rotMatrix, object2world);
+            // 对矩阵应用位置(平移)
+            object2world._14_24_34 += p.xyz;
+            // 頂点座標変換
+            v.vertex = mul(object2world, v.vertex);
+            // 法線座標変換
+            v.normal = normalize(mul(object2world, v.normal));
+        
+        #if _NORMALMAP
+            v.tangent.xyz = normalize(mul(object2world, v.tangent.xyz));
+        #endif
+        
+            v.color = lerp(_Color, _Color2, (1.0 - l) * _ColorMode);
         }
+        
 
         void surf(Input IN, inout SurfaceOutputStandard o)
         {

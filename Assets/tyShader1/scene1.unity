@@ -140,22 +140,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80a5f7ea4f10f4c48a9dd9d8d7824311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxParticles: 60000
+  _maxParticles: 20000
   _emitterCenter: {x: 0, y: 0, z: 0}
-  _emitterSize: {x: 1, y: 1, z: 1}
   _throttle: 1
   _life: 10
-  _lifeRandomness: 0.6
-  _initialVelocity: {x: 0, y: 0, z: 4}
-  _directionSpread: 0.2
-  _speedRandomness: 0.5
+  _lifeRandomness: 1
+  _startVelocity: {x: 0, y: 0, z: 1}
   _acceleration: {x: 0, y: 0, z: 0}
-  _drag: 10
-  _spin: 20
-  _speedToSpin: 60
-  _spinRandomness: 0.3
-  _noiseAmplitude: 1
+  _accelerationDrag: 0.1
   _noiseFrequency: 0.2
+  _noiseAmplitude: 1
   _noiseMotion: 1
   _shapes:
   - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
@@ -164,10 +158,9 @@ MonoBehaviour:
   _material: {fileID: 2100000, guid: 239b074980e4548c08d3c5fffe889033, type: 2}
   _castShadows: 1
   _receiveShadows: 1
-  _randomSeed: 0
-  _debug: 1
   _kernelShader: {fileID: 4800000, guid: 22ae52a584b754bcb8f613c7798e20fa, type: 3}
   _debugShader: {fileID: 4800000, guid: 20497fd1707db47c991ce68638f8f486, type: 3}
+  _debug: 1
 --- !u!4 &140178110
 Transform:
   m_ObjectHideFlags: 0
