@@ -140,22 +140,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb9d16f2ab70647d2b50724f64ba3bf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxParticles: 30000
-  _emitterPosition: {x: 0, y: 0, z: 0}
-  _emitterSize: {x: 0, y: 50, z: 200}
+  _maxParticles: 1000000
+  _emitterPosition: {x: 0, y: 0, z: 100}
+  _emitterSize: {x: 5, y: 50, z: 200}
   _throttle: 1
   _direction: {x: -0, y: -0, z: -1}
   _minSpeed: 5
   _maxSpeed: 10
-  _life: 10
+  _life: 20
   _spread: 0
-  _noiseAmplitude: 7
+  _noiseAmplitude: 6
   _noiseFrequency: 0.2
   _noiseSpeed: 1
-  _color: {r: 1, g: 1, b: 1, a: 0.7607843}
-  _tail: 2
-  _randomSeed: 0
-  _debug: 0
+  _color: {r: 1.1353015, g: 1.1353015, b: 1.1353015, a: 1}
+  _tail: 5
+  _debug: 1
   _kernelShader: {fileID: 4800000, guid: 33d0c2f21b2cf464bb32df171f3c71da, type: 3}
   _lineShader: {fileID: 4800000, guid: 9601288c046f744e385622bea39e696b, type: 3}
   _debugShader: {fileID: 4800000, guid: b2d36632f771d45cc993d1d5b4e75abf, type: 3}
@@ -309,7 +308,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 534669902}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -60}
+  m_LocalPosition: {x: 0, y: 1, z: -100}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

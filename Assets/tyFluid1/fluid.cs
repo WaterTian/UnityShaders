@@ -40,9 +40,10 @@ namespace WaterTian
         [SerializeField, Range(0, 1)]
         float _spread = 0.2f;
 
+        // 振幅
         [SerializeField]
         float _noiseAmplitude = 0.1f;
-
+        // 频率
         [SerializeField]
         float _noiseFrequency = 0.2f;
 
@@ -56,8 +57,6 @@ namespace WaterTian
         [SerializeField]
         float _tail = 1.0f;
 
-        [SerializeField]
-        int _randomSeed = 0;
 
         [SerializeField]
         bool _debug;
@@ -178,14 +177,14 @@ namespace WaterTian
 
         #region Private Properties
 
-        int BufferWidth { get { return 1024; } }
+        int BufferWidth { get { return 256; } }
 
         int BufferHeight
         {
             get
             {
-                //return Mathf.Clamp(_maxParticles / BufferWidth + 1, 1, 127);
-                return _maxParticles / BufferWidth + 1;
+                return Mathf.Clamp(_maxParticles / BufferWidth + 1, 1, 255);
+                //return _maxParticles / BufferWidth + 1;
             }
         }
 
@@ -193,7 +192,8 @@ namespace WaterTian
         {
             get
             {
-                return Application.isPlaying && Time.frameCount > 1 ? Time.deltaTime : 1.0f / 10;
+                var isEditor = !Application.isPlaying || Time.frameCount < 2;
+                return isEditor ? 1.0f / 10 : Time.deltaTime;
             }
         }
 
@@ -217,7 +217,7 @@ namespace WaterTian
         {
             var buffer = new RenderTexture(BufferWidth, BufferHeight, 0, RenderTextureFormat.ARGBFloat);
             buffer.hideFlags = HideFlags.DontSave;
-            buffer.filterMode = FilterMode.Bilinear;
+            buffer.filterMode = FilterMode.Point;
             buffer.wrapMode = TextureWrapMode.Repeat;
             return buffer;
         }
@@ -289,7 +289,7 @@ namespace WaterTian
             }
 
             //var life = 20.0f;
-            m.SetVector("_Config", new Vector4(_throttle, _life, _randomSeed, deltaTime));
+            m.SetVector("_Config", new Vector4(_throttle, _life, deltaTime, Time.time));
         }
 
         void ResetResources()
@@ -321,12 +321,12 @@ namespace WaterTian
             // Initialization.
             Graphics.Blit(null, _particleBuffer2, _kernelMaterial, 0);
 
-            //// Execute the kernel shader repeatedly.
-            //for (var i = 0; i < 8; i++)
-            //{
-            //    Graphics.Blit(_particleBuffer2, _particleBuffer1, _kernelMaterial, 1);
-            //    Graphics.Blit(_particleBuffer1, _particleBuffer2, _kernelMaterial, 1);
-            //}
+            // Execute the kernel shader repeatedly.
+            for (var i = 0; i < 8; i++)
+            {
+                Graphics.Blit(_particleBuffer2, _particleBuffer1, _kernelMaterial, 1);
+                Graphics.Blit(_particleBuffer1, _particleBuffer2, _kernelMaterial, 1);
+            }
         }
 
         #endregion
