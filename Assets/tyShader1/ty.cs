@@ -141,6 +141,20 @@ namespace WaterTian
 
         #endregion
 
+        // realsense
+        #region Realsense
+        [SerializeField]
+        GameObject _DepthTextureObject;
+
+        public GameObject DepthTextureObject
+        {
+            get { return _DepthTextureObject; }
+            set { _DepthTextureObject = value; }
+        }
+        Texture2D _DepthTexture;
+
+        #endregion
+
         #region Render Settings
 
         [SerializeField]
@@ -380,6 +394,7 @@ namespace WaterTian
 
         #region MonoBehaviour Functions
 
+
         void Reset()
         {
             _needsReset = true;
@@ -398,6 +413,8 @@ namespace WaterTian
 
         void Update()
         {
+            if(!_DepthTexture) _DepthTexture = _DepthTextureObject.GetComponent<RsStreamTextureRenderer>().texture;
+
             if (_needsReset) ResetResources();
 
             if (Application.isPlaying)
@@ -454,6 +471,9 @@ namespace WaterTian
 
                 }
             }
+
+
+            //print(_DepthTextureObject.GetComponent<RsStreamTextureRenderer>().texture);
         }
 
         void OnDrawGizmosSelected()

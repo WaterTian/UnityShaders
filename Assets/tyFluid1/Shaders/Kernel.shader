@@ -15,7 +15,7 @@ Shader "Hidden/WaterTian/Fluid/Kernel"
         _Direction   ("-", Vector) = (0, 0, -1, 0.2)
         _SpeedParams ("-", Vector) = (5, 10, 0, 0)
         _NoiseParams ("-", Vector) = (0.2, 0.1, 1)  // (frequency, amplitude, animation)
-        _Config      ("-", Vector) = (1, 2, 0 ,0)   // (throttle, life, dT ,t)
+        _Config      ("-", Vector) = (1, 2, 0 ,0)   // (throttle, life, dT ,time)
     }
 
     CGINCLUDE
@@ -50,33 +50,36 @@ Shader "Hidden/WaterTian/Fluid/Kernel"
         float t = _Config.w;
 
         // Random position.
-        float3 p = float3(nrand(uv, t + 1), nrand(uv, t + 2), nrand(uv, t + 3));
+		float3 p = float3(nrand(uv, t), nrand(uv, t + 1), nrand(uv, t + 2));
         p = (p - (float3)0.5) * _EmitterSize + _EmitterPos;
 
         // Life duration.
-        float l = _Config.y * (0.5 + nrand(uv, t + 0));
+        float l = _Config.y * (0.5 + nrand(uv, t + 3));
 
-        // Throttling: discard particle emission by adding offset.
-        float4 offs = float4(1e8, 1e8, 1e8, -1e8) * (uv.x > _Config.x);
+        //// Throttling: discard particle emission by adding offset.
+        //float4 offs = float4(1e8, 1e8, 1e8, -1e8) * (uv.x > _Config.x);
+		float4 offs = float4(1e8, 1e8, 1e8, -1) * (uv.x > _Config.x);
 
         return float4(p, l) + offs;
+        //return float4(p, l);
     }
-    
    
+
     
     
     // Position dependant velocity field.
     float3 get_velocity(float3 p, float2 uv)
     {
+		float t = _Config.w;
         // Random vector.
-        float3 v = float3(nrand(uv, 4), nrand(uv, 5), nrand(uv, 6));
+        float3 v = float3(nrand(uv, t+4), nrand(uv, t+5), nrand(uv, t+6));
         v = (v - (float3)0.5) * 2;
 
         // Apply the spread parameter.
         v = lerp(_Direction.xyz, v, _Direction.w);
 
         // Apply the speed parameter.
-        v = normalize(v) * lerp(_SpeedParams.x, _SpeedParams.y, nrand(uv, 7));
+        v = normalize(v) * lerp(_SpeedParams.x, _SpeedParams.y, nrand(uv, t+7));
 
 
 
@@ -102,9 +105,12 @@ Shader "Hidden/WaterTian/Fluid/Kernel"
         float ny = cnoise(p + float3(0, 138.2, 0));
         float nz = cnoise(p + float3(0, 0, 138.2));
         v += float3(nx, ny, nz) * _NoiseParams.y;
+
 #endif
         
-        
+
+
+
 
         return v;
     }
@@ -122,8 +128,11 @@ Shader "Hidden/WaterTian/Fluid/Kernel"
         if (p.w > 0)
         {
             float dt = _Config.z;
+			float t = _Config.w;
             p.xyz += get_velocity(p.xyz, i.uv) * dt; // position
-            p.w -= dt;                               // life
+            //p.w -= dt;                               // life
+
+			p.w -= lerp(0, 10, nrand(i.uv, t+12)) * dt;
             
             
             return p;

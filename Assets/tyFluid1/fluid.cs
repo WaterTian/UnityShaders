@@ -177,13 +177,13 @@ namespace WaterTian
 
         #region Private Properties
 
-        int BufferWidth { get { return 256; } }
+        int BufferWidth { get { return 512; } }
 
         int BufferHeight
         {
             get
             {
-                return Mathf.Clamp(_maxParticles / BufferWidth + 1, 1, 255);
+                return Mathf.Clamp(_maxParticles / BufferWidth + 1, 1, 127);
                 //return _maxParticles / BufferWidth + 1;
             }
         }
@@ -258,7 +258,7 @@ namespace WaterTian
             mesh.vertices = VA;
             mesh.uv = TA;
             mesh.SetIndices(IA, MeshTopology.Lines, 0);
-            //            mesh.Optimize();
+            //mesh.Optimize();
 
             // Avoid being culled.
             mesh.bounds = new Bounds(Vector3.zero, Vector3.one * 1000);
