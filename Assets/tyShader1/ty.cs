@@ -253,6 +253,14 @@ namespace WaterTian
         #endregion
 
 
+        #region Depth Texture
+
+        [SerializeField]
+        public Texture2D DepthTexture;
+
+        #endregion
+
+
         //// start
 
 
@@ -265,9 +273,9 @@ namespace WaterTian
 
         Material CreateMaterial(Shader shader)
         {
-            var material = new Material(shader);
-            material.hideFlags = HideFlags.DontSave;
-            return material;
+            var m = new Material(shader);
+            m.hideFlags = HideFlags.DontSave;
+            return m;
         }
 
         RenderTexture CreateBuffer()
@@ -374,6 +382,12 @@ namespace WaterTian
             // with the updated position.
             _kernelMaterial.SetTexture("_PositionBuffer", _positionBuffer2);
             Graphics.Blit(null, _velocityBuffer2, _kernelMaterial, 3);
+
+            //Debug.Log(_positionBuffer2.width);
+            //Debug.Log(_positionBuffer2.height);
+
+
+            _kernelMaterial.SetTexture("_DepthBuffer", DepthTexture);
         }
 
         #endregion

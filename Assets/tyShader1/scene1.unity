@@ -161,6 +161,7 @@ MonoBehaviour:
   _kernelShader: {fileID: 4800000, guid: 22ae52a584b754bcb8f613c7798e20fa, type: 3}
   _debugShader: {fileID: 4800000, guid: 20497fd1707db47c991ce68638f8f486, type: 3}
   _debug: 1
+  DepthTexture: {fileID: 2800000, guid: 038252ce8bdf14b9b8c5268c271f06cc, type: 3}
 --- !u!4 &140178110
 Transform:
   m_ObjectHideFlags: 0
