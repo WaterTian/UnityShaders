@@ -365,15 +365,21 @@ namespace WaterTian
             //Debug.Log(_dm.Length);
 
             var colors = new Color[_dm.Length];
+            var _i = 0;
             for (int i = 0; i < _dm.Length; i ++)
             {
-                var _x = i % _DepthTexture.width;
-                var _y = Mathf.Floor(i / _DepthTexture.height);
+                if (i > _d.Length) _i = i % _d.Length;
+
+                var _x = _i % _DepthTexture.width - _DepthTexture.width/2;
+                var _y = Mathf.Floor(_i / _DepthTexture.height) - _DepthTexture.height / 2;
                 var _z = 0;
 
-                if(i < _d.Length)  _z = _d[i].r;
+                if (_i < _d.Length) _z = _d[_i].r;
+
 
                 colors[i] = new Color(_x, _y, _z, 1);
+
+                _i++;
             }
 
             _DepthMap.SetPixels(colors);

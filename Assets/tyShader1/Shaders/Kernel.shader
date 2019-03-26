@@ -60,7 +60,7 @@ Shader "WaterTian/Spray/Kernel"
         //return float4(p, 0.5) + offs;
 
 		p = tex2D(_DepthBuffer, uv).xyz;
-        return float4(p/10, 0.5);
+        return float4(p/30, 0.5);
     }
 
     float4 new_particle_velocity(float2 uv)
