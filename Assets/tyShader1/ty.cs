@@ -222,6 +222,15 @@ namespace WaterTian
 
         #endregion
 
+
+        #region Misc Settings
+
+        [SerializeField]
+        bool _debug;
+
+        #endregion
+
+
         #region Private Variables And Properties
 
         Vector3 _noiseOffset;
@@ -245,18 +254,14 @@ namespace WaterTian
 
         #endregion
 
-        #region Misc Settings
-
-        [SerializeField]
-        bool _debug;
-
-        #endregion
-
 
         #region Depth Texture
 
         [SerializeField]
         public Texture2D DepthTexture;
+        public GameObject DepthTextureObject;
+
+        Texture2D _depthTexture;
 
         #endregion
 
@@ -317,7 +322,35 @@ namespace WaterTian
             m.SetVector("_NoiseOffset", _noiseOffset);
 
             m.SetVector("_Config", new Vector2(_throttle,deltaTime));
+
+           
+
+            //m.SetTexture("_DepthBuffer", DepthTexture);
         }
+
+
+        void SetDepth()
+        {
+            var width = _bulkMesh.copyCount;
+            var height = _maxParticles / width + 1;
+            _depthTexture = new Texture2D(width, height, TextureFormat.RGFloat, false, true)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Point,
+            };
+
+            var _d = DepthTexture.GetRawTextureData();
+
+            //Debug.Log(_d);
+            //Debug.Log(_d.Length);
+
+            var _dt = DepthTextureObject.GetComponent<Texture>() as Texture2D;
+            var _dtd = _dt.GetRawTextureData();
+            Debug.Log(_dt);
+            Debug.Log(_dtd);
+
+        }
+
 
         void ResetResources()
         {
@@ -336,11 +369,16 @@ namespace WaterTian
             _velocityBuffer1 = CreateBuffer();
             _velocityBuffer2 = CreateBuffer();
 
+
+
             if (!_kernelMaterial) _kernelMaterial = CreateMaterial(_kernelShader);
             if (!_debugMaterial) _debugMaterial = CreateMaterial(_debugShader);
 
+
             // Warming up
             InitializeAndPrewarmBuffers();
+
+            SetDepth();
 
             _needsReset = false;
         }
@@ -359,6 +397,8 @@ namespace WaterTian
                 SwapBuffersAndInvokeKernels();
                 UpdateKernelShader();
             }
+
+
         }
 
         void SwapBuffersAndInvokeKernels()
@@ -386,8 +426,6 @@ namespace WaterTian
             //Debug.Log(_positionBuffer2.width);
             //Debug.Log(_positionBuffer2.height);
 
-
-            _kernelMaterial.SetTexture("_DepthBuffer", DepthTexture);
         }
 
         #endregion
