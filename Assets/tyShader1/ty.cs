@@ -144,14 +144,25 @@ namespace WaterTian
 
         // realsense
         #region Realsense
-        [SerializeField]
-        Texture2D _DepthTexture;
 
-        public Texture2D DepthTexture
+
+        //Texture2D _DepthTexture;
+        //public Texture2D DepthTexture
+        //{
+        //    get { return _DepthTexture; }
+        //    set { _DepthTexture = value; }
+        //}
+        [SerializeField]
+        GameObject _DepthTextureObj;
+        public GameObject DepthTextureObj
         {
-            get { return _DepthTexture; }
-            set { _DepthTexture = value; }
+            get { return _DepthTextureObj; }
+            set { _DepthTextureObj = value; }
         }
+
+
+
+
         Texture2D _DepthMap;
 
         #endregion
@@ -331,8 +342,8 @@ namespace WaterTian
 
         void SetDepth()
         {
-            //_DepthTexture = _DepthTextureObject.GetComponent<RsStreamTextureRenderer>().texture;
-            //if (!_DepthTexture) return;
+            WebCamTexture _DepthTexture = _DepthTextureObj.GetComponent<WebCam>().cameraTexture;
+            if (!_DepthTexture) return;
 
             var _d = _DepthTexture.GetPixels32();
             //Debug.Log(_d.Length);
