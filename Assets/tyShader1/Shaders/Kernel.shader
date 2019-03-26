@@ -15,6 +15,7 @@ Shader "WaterTian/Spray/Kernel"
     {
         _PositionBuffer ("-", 2D) = ""{}
         _VelocityBuffer ("-", 2D) = ""{}
+        _DepthBuffer ("-", 2D) = ""{}
     }
 
     CGINCLUDE
@@ -24,6 +25,7 @@ Shader "WaterTian/Spray/Kernel"
 
     sampler2D _PositionBuffer;
     sampler2D _VelocityBuffer;
+    sampler2D _DepthBuffer;
 
     float3 _EmitterPos;
     float2 _LifeParams;   // 1/min, 1/max
@@ -55,7 +57,10 @@ Shader "WaterTian/Spray/Kernel"
         // Throttling: discards particle emission by adding offset.
         float4 offs = float4(1e8, 1e8, 1e8, -1) * (uv.x > _Config.x);
 
-        return float4(p, 0.5) + offs;
+        //return float4(p, 0.5) + offs;
+
+		p = tex2D(_DepthBuffer, uv).xyz;
+        return float4(p/10, 0.5);
     }
 
     float4 new_particle_velocity(float2 uv)

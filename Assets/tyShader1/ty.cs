@@ -3,6 +3,7 @@
 //
 using UnityEngine;
 using UnityEngine.Rendering;
+using System;
 
 namespace WaterTian
 {
@@ -144,14 +145,14 @@ namespace WaterTian
         // realsense
         #region Realsense
         [SerializeField]
-        GameObject _DepthTextureObject;
-
-        public GameObject DepthTextureObject
-        {
-            get { return _DepthTextureObject; }
-            set { _DepthTextureObject = value; }
-        }
         Texture2D _DepthTexture;
+
+        public Texture2D DepthTexture
+        {
+            get { return _DepthTexture; }
+            set { _DepthTexture = value; }
+        }
+        Texture2D _DepthMap;
 
         #endregion
 
@@ -323,6 +324,64 @@ namespace WaterTian
             m.SetVector("_NoiseOffset", _noiseOffset);
 
             m.SetVector("_Config", new Vector2(_throttle,deltaTime));
+
+            SetDepth();
+        }
+
+
+        void SetDepth()
+        {
+            //_DepthTexture = _DepthTextureObject.GetComponent<RsStreamTextureRenderer>().texture;
+            //if (!_DepthTexture) return;
+
+            var _d = _DepthTexture.GetPixels32();
+            //Debug.Log(_d.Length);
+            //Debug.Log(_DepthTexture.width);
+            //Debug.Log(_DepthTexture.height);
+
+            //UInt16[] _d16 = new UInt16[_d.Length / 2];
+
+            //for (int i = 0; i < _d.Length; i += 2)
+            //{
+            //    var temp = BitConverter.ToUInt16(_d,i);
+            //    _d16[i / 2] = temp;
+            //}
+
+            //Debug.Log(_d16.Length);
+
+            //Debug.Log(_depthMap.GetRawTextureData<Color32>().Length);
+
+
+            var width = _bulkMesh.copyCount;
+            var height = _maxParticles / width + 1;
+            _DepthMap = new Texture2D(width, height, TextureFormat.RGBAFloat,false)
+            {
+                hideFlags = HideFlags.DontSave,
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Repeat,
+            };
+
+            var _dm = _DepthMap.GetPixels32();
+            //Debug.Log(_dm.Length);
+
+            var colors = new Color[_dm.Length];
+            for (int i = 0; i < _dm.Length; i ++)
+            {
+                var _x = i % _DepthTexture.width;
+                var _y = Mathf.Floor(i / _DepthTexture.height);
+                var _z = 0;
+
+                if(i < _d.Length)  _z = _d[i].r;
+
+                colors[i] = new Color(_x, _y, _z, 1);
+            }
+
+            _DepthMap.SetPixels(colors);
+            _DepthMap.Apply();
+
+
+            _kernelMaterial.SetTexture("_DepthBuffer", _DepthMap);
+
         }
 
         void ResetResources()
@@ -413,8 +472,7 @@ namespace WaterTian
 
         void Update()
         {
-            if(!_DepthTexture) _DepthTexture = _DepthTextureObject.GetComponent<RsStreamTextureRenderer>().texture;
-
+            
             if (_needsReset) ResetResources();
 
             if (Application.isPlaying)
@@ -468,6 +526,11 @@ namespace WaterTian
 
                     rect.y += h;
                     Graphics.DrawTexture(rect, _velocityBuffer2, _debugMaterial);
+
+                    rect.y += h;
+                    Graphics.DrawTexture(rect, _DepthMap, _debugMaterial);
+
+                    
 
                 }
             }
