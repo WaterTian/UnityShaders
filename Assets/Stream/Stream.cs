@@ -151,11 +151,12 @@ namespace Kvant
 
         #region Private Properties
 
-        int BufferWidth { get { return 256; } }
+        int BufferWidth { get { return 512; } }
 
         int BufferHeight {
             get {
-                return Mathf.Clamp(_maxParticles / BufferWidth + 1, 1, 127);
+                //return Mathf.Clamp(_maxParticles / BufferWidth + 1, 1, 127);
+                return _maxParticles / BufferWidth + 1;
             }
         }
 

@@ -177,14 +177,14 @@ namespace WaterTian
 
         #region Private Properties
 
-        int BufferWidth { get { return 256; } }
+        int BufferWidth { get { return 2048; } }
 
         int BufferHeight
         {
             get
             {
-                return Mathf.Clamp(_maxParticles / BufferWidth + 1, 1, 255);
-                //return _maxParticles / BufferWidth + 1;
+                //return Mathf.Clamp(_maxParticles / BufferWidth + 1, 1, 255);
+                return _maxParticles / BufferWidth + 1;
             }
         }
 
