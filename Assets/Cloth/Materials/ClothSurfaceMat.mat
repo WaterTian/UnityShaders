@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GPUTrails
-  m_Shader: {fileID: 4800000, guid: bf932f9087c728a4bb9004a0baa9b44c, type: 3}
+  m_Name: ClothSurfaceMat
+  m_Shader: {fileID: 4800000, guid: 23f3f1673dd8e6941b92c6dbaf22a8b1, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -47,11 +47,19 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NormalTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _PositionTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -61,20 +69,42 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 0.795
     - _GlossyReflections: 1
-    - _Metallic: 0
+    - _Metallic: 0.407
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _ReflectionCoefficient: 1
     - _SmoothnessTextureChannel: 0
+    - _SpecDot0Max: 0.9
+    - _SpecDot0Min: 0.85
+    - _SpecDot1Max: -0.15
+    - _SpecDot1Min: 0.05
+    - _SpecDot2Max: 0.52
+    - _SpecDot2Min: 0.4
+    - _SpecDot3Max: -0.2
+    - _SpecDot3Min: 0.3
+    - _SpecDotMax: 0
+    - _SpecDotMin: 0.14
+    - _SpecPower: 0.9
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _Width: 0.37
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _CameraDistanceFade: {r: 183.8, g: 49.9, b: 0, a: 0}
+    - _CameraPosition: {r: 0, g: 0, b: -10, a: 0}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
+    - _Color0: {r: 0.55353117, g: 0, b: 0.8584906, a: 1}
+    - _Color1: {r: 0, g: 0.8666668, b: 1, a: 1}
+    - _Color2: {r: 1, g: 0.909804, b: 0, a: 1}
+    - _Color3: {r: 1, g: 0.28773582, b: 0.42595533, a: 1}
+    - _DiffuseColor: {r: 0, g: 0.09142814, b: 0.24528301, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _EndColor: {r: 0.0009974781, g: 0.4245283, b: 0, a: 0}
-    - _StartColor: {r: 1, g: 0.459, b: 0.459, a: 1}
+    - _MainTint: {r: 1, g: 1, b: 1, a: 1}
+    - _SpecularColor: {r: 0.6886792, g: 0.19815768, b: 0.6225022, a: 1}
+    - _SpecularColor0: {r: 0.3962264, g: 0.3962264, b: 0.024296913, a: 1}
+    - _SpecularColor1: {r: 0.22175166, g: 0, b: 0.26415092, a: 1}
+    - _SpecularColor2: {r: 0, g: 0.021770695, b: 0.14150941, a: 1}
+    - _SpecularColor3: {r: 0.3288879, g: 0.3773585, b: 0.062299743, a: 1}

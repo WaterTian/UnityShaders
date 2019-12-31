@@ -136,7 +136,20 @@ Shader "Hidden/Kvant/Spray/Kernel"
             float3 np = (p.xyz + _NoiseOffset) * _NoiseParams.x;
             float3 n1 = snoise_grad(np);
             float3 n2 = snoise_grad(np + float3(0, 13.28, 0));
-            v += cross(n1, n2) * _NoiseParams.y * dt;
+			float3 acc = cross(n1, n2) * _NoiseParams.y * dt;
+            
+
+			/// ty add for taichi back
+			float radius = 10;
+			float dist = length(p.xyz);
+			if (dist > radius) {
+				float f = pow(2.0, (dist - radius) * 2.0) * 0.01;
+				acc -= normalize(p.xyz) * f;
+				acc *= 0.01;
+			}
+
+
+			v += acc;
 
             return float4(v, 0);
         }
